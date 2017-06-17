@@ -3,6 +3,7 @@ var $create = $("#create");
 var $cancel = $("#cancel");
 var $form = $("#form");
 var $save = $("#saveChanges");
+var $country =$("#country");
  $.getJSON("/user", function (users) {
     for (var i = 0; i < users.length; i++) {
         var $tr = $("<tr class='tr'></tr>")
@@ -27,15 +28,17 @@ var $save = $("#saveChanges");
         $removeBtn.attr("data-target",users[i].id);
     }
 });
-$create.click(function () {
+$create.click(function (users) {
     $(document.forms["users-edit"]).removeClass("users-edit-hidden");
     clearForm({});
     $save.text("Save changes");
+    readCountry();
 });
 
 $cancel.click(function (el) {
     el.preventDefault();
     $(document.forms["users-edit"]).addClass("users-edit-hidden");
+
 });
 $table.click(function(el){
     if(el.target.className==="remove"){
@@ -56,14 +59,14 @@ $form.submit(function(el){
     postUser();
 });
 function editUser(id){
-
+       readCountry();
     $.ajax({
         url: "/user?id="+id,
         dataType: "json",
         type: "get",
         contentType: "application/json",
-        success: function(user){
-            clearForm(user)
+        success: function(thisObject){
+            clearForm(thisObject);
         }
     })
 }
@@ -82,7 +85,8 @@ function postUser(user){
         address: $("#address").val(),
         shortInfo: $("#short-info").val(),
         fullInfo: $("#full-info").val(),
-        id: $("#id").val()
+        id: $("#id").val(),
+        country: $("#country").val()
     };
     $.ajax({
         url: "/user",
@@ -103,5 +107,15 @@ function clearForm(user){
     $("#address").val(user.address);
     $("#short-info").val(user.shortInfo);
     $("#full-info").val(user.fullInfo);
-    $("#id").val(user.id)
+    $("#id").val(user.id);
+    $("#country").val(user.country);
+}
+function readCountry(){
+    $.getJSON("/user", function (users) {
+        for (var i = 0; i < users.length; i++) {
+            $("<option></option>")
+                .text(users[i].country)
+                .appendTo($country);
+        }
+    });
 }
